@@ -8,19 +8,16 @@
 
 struct vm {
 	struct str_pool {
-		char* start;	
-		char** by_idx;
+		char* char_at;
+		char** str_at;
 
 		uint64_t size;
 	} const_str_pool;
 
-	struct val_pool {
-		uint64_t* by_idx, size;
-	} const_val_pool;
+	uint64_t funcs_count;
+	function_t* functions;
 
-	function_s const * const functions;
-
-	refs_list_s * const refs_list;
+	refs_list_t * const refs_list;
 	call_stack_t * const call_stack;
 	
 } vm_t;
