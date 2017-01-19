@@ -20,6 +20,7 @@
 enum load_err_code {
 	READ_OK,
 	ERR_IN_READING_FUNCTION,
+	ERR_IN_READING_CONST_POOL,
 	ERR_INCORRECT_HEADER
 } load_err_code_t;
 
