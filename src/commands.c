@@ -79,11 +79,21 @@ DEFINE_BINOP(mod, %, uint64_t)
 #undef DEFINE_BINOP
 
 UNIPLEMENTED(nop)
-UNIPLEMENTED(iprint)
 UNIPLEMENTED(dprint)
-UNIPLEMENTED(sprint)
 UNIPLEMENTED(ret)
 UNIPLEMENTED(invoke)
+UNIPLEMENTED(iprint)
+
+DEFINE_CMD(sprint) {
+	stack_t* const eval_stack = get_eval_stack( vm );
+	uint64_t str_id;
+	TRY( stack_pop(eval_stack, &str_id) );
+
+	char* to_print = vm-> const_str_pool.str_at[ str_id ];
+	puts( to_print );
+
+	return OK;
+}
 
 DEFINE_CMD(clear) {
 	stack_t* const eval_stack = get_eval_stack( vm );
@@ -95,6 +105,7 @@ DEFINE_CMD(clear) {
 DEFINE_CMD(push) {
 	vm_context_t* cur_ctx = vm-> ctx_stack-> cur_ctx;
 	uint64_t constant = *((uint64_t*)(cur_ctx-> cur_func-> cmds));
+	cur_ctx-> cur_func-> cmds += sizeof(uint64_t);
 
 	TRY( stack_push( get_eval_stack(vm), constant ) );
 

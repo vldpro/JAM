@@ -2,6 +2,7 @@
 #include "function.h"
 #include "vm.h"
 #include "util.h"
+#include "debug.h"
 
 #include <stdio.h>
 
@@ -15,7 +16,6 @@ do { size_t err = (action); if( err ) return err; } while(0)
 #define TRY_WITH_FINALLY( action, finally ) \
 do { size_t err = (action); if( err ) { (finally); return err; } } while(0)
 
-
 struct file_header {
 	uint64_t tag;
 	uint64_t version;
@@ -23,6 +23,19 @@ struct file_header {
 	uint64_t str_pool_size;
 	uint64_t functions_count;
 };
+
+
+#ifdef DEBUG
+
+void print_file_header( struct file_header header ) {
+	printf("Tag: %u \n", header.tag );
+	printf("Version: %u \n", header.version );
+	printf("Pool size: %u \n", header.str_pool_size );
+	printf("Funcs count: %u \n", header.functions_count);
+}
+
+#endif
+
 
 
 static load_err_code_t
@@ -44,11 +57,11 @@ check_header( struct file_header header ) {
 
 static load_err_code_t
 load_function( function_t* new_func, FILE* src ) {
-
 	TRY_READ( 
 		fread( new_func, sizeof(uint64_t), 3, src ),
 		ERR_IN_READING_FUNCTION_META
 		);
+
 	
 	TRY_READ( fread( 
 		new_func-> cmds = malloc( sizeof(char) * new_func-> cmds_count ),  
@@ -57,6 +70,10 @@ load_function( function_t* new_func, FILE* src ) {
 		src ),
 		ERR_IN_READING_FUNCTION
 		);
+
+	#ifdef DEBUG
+	print_function( new_func );
+	#endif
 
 	return LOAD_OK;
 }
@@ -73,7 +90,14 @@ load_functions( function_t* functions, uint64_t const funcs_count, FILE* src ) {
 load_err_code_t
 load_src_file( vm_t* vm, FILE* src ) {
 	struct file_header header = {};
-	TRY_EXEC( fread(&header, sizeof(struct file_header), 1, src) );
+	TRY_READ( 
+		fread(&header, sizeof(struct file_header), 1, src), 
+		ERR_IN_READING_HEADER
+	);
+
+	#ifdef DEBUG
+	print_file_header( header );
+	#endif
 
 	vm_init_str_const_pool( &(vm-> const_str_pool), header.str_pool_size );
 
@@ -83,6 +107,7 @@ load_src_file( vm_t* vm, FILE* src ) {
 		);
 
 	vm-> functions = malloc( sizeof(function_t) * header.functions_count );
+	vm-> funcs_count = header.functions_count;
 
 	TRY_WITH_FINALLY( 
 		load_functions( vm-> functions, vm-> funcs_count, src ),
