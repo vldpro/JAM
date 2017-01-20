@@ -1,19 +1,21 @@
 #include <string.h>
 #include <stdlib.h>
+#include "util.h"
 
-static inline size_t lines_count( char const * const char_seq ) {
-	size_t const length = strlen( char_seq );
-	size_t count = 0;
+static inline size_t lines_count( char const * const char_seq, size_t const chars_count ) {
+	size_t str_count = 0;
 
-	for( size_t i = 0; i < length; i++ ) if( char_seq[i] == '\0' ) count++;
-	return count;
+	for( size_t i = 0; i < chars_count; i++ ) if( char_seq[i] == '\0' ) str_count++;
+	return str_count;
 }
 
-void split_by_lines( char* char_seq, char** str_arr ) {
-	size_t const length = strlen( char_seq );
-	str_arr = malloc( lines_count( char_seq ) * sizeof(char*) );
-	str_arr[0] = char_seq;
+void split_by_lines( struct str_pool* const pool ) {
+	pool-> str_count = lines_count( pool-> char_at, pool-> size );
+	pool-> str_at = malloc( pool-> str_count * sizeof(char*) );
+	pool-> str_at[0] = pool-> char_at;
 
-	for( size_t i = 0; i < length; i++ ) 
-		if( char_seq[i] == '\0' ) str_arr[i] = char_seq + i + 1;
+	for( size_t i = 0, j = 1; i < pool-> size; i++ ) 
+		if( pool-> char_at[i] == '\0' ) { 
+			pool-> str_at[j++] = pool-> char_at + i + 1;
+		}
 }
