@@ -1,5 +1,6 @@
 #ifndef REF_H
 #define REF_H
+#include <stdlib.h>
 
 typedef struct ref {
 	size_t mem_size;

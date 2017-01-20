@@ -2,11 +2,10 @@
 #define VM_H
 
 #include "refs_list.h"
-#include "call_stack.h"
-#include "constant_string_pool.h"
+#include "ctx_stack.h"
 #include "function.h"
 
-struct vm {
+typedef struct vm {
 	struct str_pool {
 		char* char_at;
 		char** str_at;
@@ -17,9 +16,15 @@ struct vm {
 	uint64_t funcs_count;
 	function_t* functions;
 
-	refs_list_t * const refs_list;
-	call_stack_t * const call_stack;
+	refs_list_s* refs_list;
+	ctx_stack_t* ctx_stack;
 	
 } vm_t;
+
+void vm_init_str_const_pool( struct str_pool* const pool, size_t const size );
+
+void vm_free_str_const_pool( struct str_pool* pool );
+
+void vm_free_functions( vm_t* vm );
 
 #endif

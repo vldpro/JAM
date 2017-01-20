@@ -1,6 +1,9 @@
 #ifndef LOADER_H
 #define LOADER_H
 
+#include <stdio.h>
+#include "vm.h"
+
 /** 
 * file structure:
 * 	1. tag - 64 bit identifier
@@ -17,14 +20,14 @@
 *	4. commands[commands count]
 */
 
-enum load_err_code {
-	READ_OK,
+typedef enum load_err_code_t {
+	LOAD_OK,
 	ERR_IN_READING_FUNCTION,
 	ERR_IN_READING_CONST_POOL,
-	ERR_INCORRECT_HEADER
-} load_err_code_t;
+	ERR_INCORRECT_HEADER,
+	ERR_IN_READING_FUNCTION_META
 
-char* get_load_err_code_msg( enum load_err_code_t const err ) { }
+} load_err_code_t;
 
 
 load_err_code_t

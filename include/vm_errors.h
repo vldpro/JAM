@@ -10,6 +10,6 @@ enum vm_err_code {
 
 };
 
-char* get_vm_err_msg( enum vm_err_code err );
+//char* get_vm_err_msg( enum vm_err_code err ); 
 
 #endif

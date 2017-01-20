@@ -1,5 +1,5 @@
 #include "loader.h"
-#include "function.c"
+#include "function.h"
 #include "vm.h"
 #include "util.h"
 
@@ -32,14 +32,14 @@ load_str_const_pool( struct str_pool* pool, FILE* src ) {
 		ERR_IN_READING_CONST_POOL
 		);
 
-	split_by_lines( pool-> char_at, pool-> str_at ); //unimplimented
+	split_by_lines( pool-> char_at, pool-> str_at );
 
 	return LOAD_OK;
 }
 
 static inline load_err_code_t
 check_header( struct file_header header ) {
-	return  header.tag != 0xDEADDEADDEADDEAD || header.version != 1 ? ERR_INCORRENCT_HEADER : LOAD_OK;
+	return  header.tag != 0xDEADDEADDEADDEAD || header.version != 1 ? ERR_INCORRECT_HEADER : LOAD_OK;
 }
 
 static load_err_code_t
@@ -62,9 +62,9 @@ load_function( function_t* new_func, FILE* src ) {
 }
 
 static load_err_code_t
-load_functions( function_t* functions, uint64_t const functions_count, FILE* src ) { 
+load_functions( function_t* functions, uint64_t const funcs_count, FILE* src ) { 
 	for( size_t i = 0; i < funcs_count; i++ ) 
-		TRY_EXEC( load_function(function + i, src) );	
+		TRY_EXEC( load_function(functions + i, src) );	
 
 	return LOAD_OK;
 }
@@ -75,19 +75,19 @@ load_src_file( vm_t* vm, FILE* src ) {
 	struct file_header header = {};
 	TRY_EXEC( fread(&header, sizeof(struct file_header), 1, src) );
 
-	vm_init_str_const_pool( &(vm-> const_str_pool), header-> str_pool_size );
+	vm_init_str_const_pool( &(vm-> const_str_pool), header.str_pool_size );
 
 	TRY_WITH_FINALLY( 
 		load_str_const_pool( &(vm-> const_str_pool), src ),
-		vm_free_const_pool( &(vm-> const_str_pool), src )
+		vm_free_str_const_pool( &(vm-> const_str_pool) )
 		);
 
-	vm-> functions = malloc( sizeof(function_t) * header-> functions_count );
+	vm-> functions = malloc( sizeof(function_t) * header.functions_count );
 
 	TRY_WITH_FINALLY( 
 		load_functions( vm-> functions, vm-> funcs_count, src ),
 		{ 
-		vm_free_const_pool( &(vm-> const_str_pool) ); 
+		vm_free_str_const_pool( &(vm-> const_str_pool) ); 
 		vm_free_functions( vm ); 
 		}
 		);

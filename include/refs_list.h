@@ -4,14 +4,9 @@
 #include <stdlib.h>
 #include <ref.h>
 
-typedef struct ref {
-	size_t mem_size;
-	char* mem_ptr;
-} ref_s;
-
 typedef struct refs_list{
 	size_t size;
-	ref** refs;
+	ref_s** refs;
 } refs_list_s;
 
 

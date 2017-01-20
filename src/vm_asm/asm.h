@@ -19,7 +19,6 @@
 	
 #define def_const_pool( size_in_bytes ) \
 	writeconst(size_in_bytes, uint64_t)
-
 #define add_const_str(str) writestr(str)
 
 #define def_function( name_id, args_count, locals_count, cmds_count ) \
@@ -54,5 +53,5 @@
 #define swap writecmd(17)
 #define dprint writecmd(18)
 #define iprint writecmd(19)
-#define sprint writecmd(20)
+#define printstr writecmd(20)
 #define halt writecmd(21)
