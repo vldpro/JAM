@@ -7,6 +7,8 @@
 
 #define ERR_TYPE enum vm_err_code
 
+#define DEFAULT_EVAL_STACK_SIZE 25 
+
 typedef struct stack {
 	size_t size, sp;
 	uint64_t* data;

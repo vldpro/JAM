@@ -10,6 +10,7 @@ typedef struct vm {
 		char* char_at;
 		char** str_at;
 
+		uint64_t str_count;
 		uint64_t size;
 	} const_str_pool;
 

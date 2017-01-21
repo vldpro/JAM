@@ -25,14 +25,16 @@ DEFINE_CMD(cmd_name) { return OK; }
 
 #define DEFINE_BINOP( cmd_name, operation, type ) \
 DEFINE_CMD(cmd_name) { \
-	type a, b; \
+	type a, b, result; \
 	stack_t* const eval_stack = get_eval_stack( vm ); \
 	TRY( stack_pop(eval_stack, (uint64_t*)&a) ); \
 	TRY( stack_pop(eval_stack, (uint64_t*)&b) ); \
-	stack_push(eval_stack, a operation b); \
+	result = a operation b; \
+	stack_push(eval_stack, *((uint64_t*)&(result)) ); \
 	\
 	return OK; \
 } 
+
 
 DEFINE_BINOP(iadd, +, int64_t)
 DEFINE_BINOP(dadd, +, double)
@@ -53,11 +55,68 @@ DEFINE_BINOP(mod, %, uint64_t)
 
 #undef DEFINE_BINOP
 
-UNIPLEMENTED(nop)
-UNIPLEMENTED(dprint)
-UNIPLEMENTED(ret)
-UNIPLEMENTED(invoke)
-UNIPLEMENTED(iprint)
+DEFINE_CMD(invoke) {
+	stack_t* const old_eval_stack = get_eval_stack( vm );
+	uint64_t func_id;
+	TRY( stack_pop(old_eval_stack, &func_id) );
+
+
+	if( func_id >= vm-> funcs_count ) return NO_SUCH_FUNCTION;
+
+	function_t* callee_func = vm-> functions + func_id;
+	stack_t* new_eval_stack = stack_new( DEFAULT_EVAL_STACK_SIZE );
+
+	// copy arguments
+	for( size_t i = 0; i < callee_func-> args_count; i++ ) {
+		size_t val;
+
+		TRY( stack_pop( old_eval_stack, &val ) );
+		stack_push( new_eval_stack, val );
+	}
+
+	// create new context
+	ctx_stack_push(
+		vm-> ctx_stack,
+		vmctx_new( (vm_context_t) {
+			.eval_stack = new_eval_stack,
+			.instr_ptr = 0,
+			.cur_func = callee_func
+		})
+	);
+
+	return OK;
+}
+
+DEFINE_CMD(ret) {
+	vm_context_t* executed_ctx = ctx_stack_pop( vm-> ctx_stack );
+	uint64_t return_value;
+
+	TRY( stack_pop( executed_ctx-> eval_stack, &return_value ) );
+	TRY( stack_push( vm-> ctx_stack-> cur_ctx-> eval_stack, return_value ) );
+	vmctx_free( executed_ctx );
+
+	return OK;
+}
+
+DEFINE_CMD(nop) { return OK; }
+
+DEFINE_CMD(iprint) {
+	stack_t* const eval_stack = get_eval_stack( vm );
+	int64_t val;
+	TRY( stack_pop(eval_stack, (uint64_t*)&val) );
+
+	printf( "%i", val );
+}
+
+DEFINE_CMD(dprint) {
+	stack_t* const eval_stack = get_eval_stack( vm );
+	double val;
+	TRY( stack_pop(eval_stack, (uint64_t*)&val) );
+
+	printf( "%d", val );
+
+	return OK;
+}
 
 DEFINE_CMD(sprint) {
 	stack_t* const eval_stack = get_eval_stack( vm );
@@ -79,8 +138,11 @@ DEFINE_CMD(clear) {
 
 DEFINE_CMD(push) {
 	vm_context_t* cur_ctx = vm-> ctx_stack-> cur_ctx;
-	uint64_t constant = *((uint64_t*)(cur_ctx-> cur_func-> cmds));
-	cur_ctx-> cur_func-> cmds += sizeof(uint64_t);
+	uint64_t constant = *((uint64_t*)(
+		cur_ctx-> cur_func-> cmds + cur_ctx-> instr_ptr
+	));
+
+	cur_ctx-> instr_ptr += sizeof(uint64_t);
 
 	TRY( stack_push( get_eval_stack(vm), constant ) );
 
@@ -131,8 +193,6 @@ DEFINE_CMD(branchif) {
 	if( compare_res ) cmd_branch( vm );
 	return OK;
 }
-
-#define DATA_STACK_SIZE 64
 
 DEFINE_CMD(retvoid) {
 	vmctx_free( ctx_stack_pop(vm-> ctx_stack) );

@@ -4,11 +4,11 @@
 #include "vm_context.h"
 #include "ctx_stack.h"
 #include "stack.h"
+#include "interpreter.h"
 
 #include <stdio.h>
 
 #define REFSLIST_SIZE 40
-#define STACK_SIZE 60
 
 int main( int argc, char** argv ) {
 	if( argc <= 1 ) return 0;
@@ -26,14 +26,12 @@ int main( int argc, char** argv ) {
 	ctx_stack_push( 
 		vm-> ctx_stack, 
 		vmctx_new((vm_context_t) {
-			.eval_stack = stack_new( STACK_SIZE ),
+			.eval_stack = stack_new( DEFAULT_EVAL_STACK_SIZE ),
 			.instr_ptr = 0,
 			.cur_func = vm-> functions,
 			.prev_ctx = NULL
 		}) 
 	);
 
-	return 0;
-
-	interpret( vm, stderr );
+	run( vm, stderr );
 }

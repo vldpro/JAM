@@ -46,8 +46,10 @@ void print_function( function_t const * const func ) {
 		printf(" %04i : %08i", i, func-> cmds[i] );
 		printf(" : %s", bc_mnemonics[ func-> cmds[i] ] );
 		if( func-> cmds[i] == 0x01) {
-			printf(" 0x%08x\n", *((uint64_t*)(func-> cmds + i)) );
-			i+=8;
+			i++;
+			printf(" 0x%08x", *((uint64_t*)(func-> cmds + i)) );
+			printf(" %u \n", *((uint64_t*)(func-> cmds + i)) );
+			i+=7;
 		} else puts("");
 	}
 

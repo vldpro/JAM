@@ -6,8 +6,8 @@
 typedef enum vm_err_code (*cmd_t) (vm_t*);
 
 static inline char get_current_bytecode( vm_t const * const vm ) {
-	vm_context_t const * const cur_ctx = vm-> ctx_stack-> cur_ctx;
-	return cur_ctx-> cur_func-> cmds[ cur_ctx-> instr_ptr ];
+	vm_context_t* const cur_ctx = vm-> ctx_stack-> cur_ctx;
+	return cur_ctx-> cur_func-> cmds[ cur_ctx-> instr_ptr++ ];
 }
 
 static inline void err_handler( enum vm_err_code err, vm_t const * const vm, FILE* const errout ) {
