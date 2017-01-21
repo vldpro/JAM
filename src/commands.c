@@ -23,37 +23,95 @@ static inline stack_t* get_eval_stack( vm_t const * const vm ) {
 #define UNIPLEMENTED( cmd_name ) \
 DEFINE_CMD(cmd_name) { return OK; }
 
-#define DEFINE_BINOP( cmd_name, operation, type ) \
+#define DEFINE_BINOP( cmd_name, operation, type, res_type ) \
 DEFINE_CMD(cmd_name) { \
-	type a, b, result; \
+	type a, b; \
+	\
 	stack_t* const eval_stack = get_eval_stack( vm ); \
 	TRY( stack_pop(eval_stack, (uint64_t*)&a) ); \
 	TRY( stack_pop(eval_stack, (uint64_t*)&b) ); \
-	result = a operation b; \
+	\
+	res_type result = a operation b; \
 	stack_push(eval_stack, *((uint64_t*)&(result)) ); \
 	\
 	return OK; \
 } 
 
+#define DEFINE_COMPARE_OP( name, op, type ) \
+	DEFINE_BINOP(name, op, type, uint64_t)
 
-DEFINE_BINOP(iadd, +, int64_t)
-DEFINE_BINOP(dadd, +, double)
+#define DEFINE_MATH_OP( name, op, type ) \
+	DEFINE_BINOP(name, op, type, type)
 
-DEFINE_BINOP(isub, -, int64_t)
-DEFINE_BINOP(dsub, -, double)
+DEFINE_MATH_OP(iadd, +, int64_t)
+DEFINE_MATH_OP(dadd, +, double)
 
-DEFINE_BINOP(imul, *, int64_t)
-DEFINE_BINOP(dmul, *, double)
+DEFINE_MATH_OP(isub, -, int64_t)
+DEFINE_MATH_OP(dsub, -, double)
 
-DEFINE_BINOP(idiv, /, int64_t)
-DEFINE_BINOP(ddiv, /, double)
+DEFINE_MATH_OP(imul, *, int64_t)
+DEFINE_MATH_OP(dmul, *, double)
 
-DEFINE_BINOP(and, &, uint64_t)
-DEFINE_BINOP(or, |, uint64_t)
-DEFINE_BINOP(xor, ^, uint64_t)
-DEFINE_BINOP(mod, %, uint64_t)
+DEFINE_MATH_OP(idiv, /, int64_t)
+DEFINE_MATH_OP(ddiv, /, double)
 
-#undef DEFINE_BINOP
+DEFINE_MATH_OP(and, &, uint64_t)
+DEFINE_MATH_OP(or, |, uint64_t)
+DEFINE_MATH_OP(xor, ^, uint64_t)
+DEFINE_MATH_OP(mod, %, uint64_t)
+
+DEFINE_COMPARE_OP(icmpeq, ==, int64_t ); 
+DEFINE_COMPARE_OP(dcmpeq, ==, double ); 
+
+DEFINE_COMPARE_OP(icmpne, !=, int64_t ); 
+DEFINE_COMPARE_OP(dcmpne, !=, double ); 
+
+DEFINE_COMPARE_OP(icmpg, >, int64_t ); 
+DEFINE_COMPARE_OP(dcmpg, >, double ); 
+
+DEFINE_COMPARE_OP(icmpge, >=, int64_t ); 
+DEFINE_COMPARE_OP(dcmpge, >=, double ); 
+
+DEFINE_COMPARE_OP(icmpl, <, int64_t ); 
+DEFINE_COMPARE_OP(dcmpl, <, double ); 
+
+DEFINE_COMPARE_OP(icmple, <=, int64_t ); 
+DEFINE_COMPARE_OP(dcmple, <=, double ); 
+
+DEFINE_CMD(neg) {
+	stack_t* const eval_stack = get_eval_stack( vm );
+	uint64_t val;
+	TRY( stack_pop(eval_stack, &val) );
+
+	val = !val;
+	stack_push(eval_stack, val);
+	
+	return OK;
+}
+
+DEFINE_CMD(i2d) {
+	stack_t* const eval_stack = get_eval_stack( vm );
+	int64_t val;
+
+	TRY( stack_pop(eval_stack, (uint64_t*)&val) );
+
+	double val_as_double = (double) val;
+	stack_push( eval_stack, *((uint64_t*)(&val_as_double)) );
+
+	return OK;
+}
+
+DEFINE_CMD(d2i) {
+	stack_t* const eval_stack = get_eval_stack( vm );
+	double val;
+
+	TRY( stack_pop(eval_stack, (uint64_t*)&val) );
+
+	int64_t val_as_int = (int64_t) val;
+	stack_push( eval_stack, *((uint64_t*)(&val_as_int)) );
+
+	return OK;
+}
 
 DEFINE_CMD(invoke) {
 	stack_t* const old_eval_stack = get_eval_stack( vm );
@@ -103,6 +161,7 @@ DEFINE_CMD(nop) { return OK; }
 DEFINE_CMD(iprint) {
 	stack_t* const eval_stack = get_eval_stack( vm );
 	int64_t val;
+
 	TRY( stack_pop(eval_stack, (uint64_t*)&val) );
 
 	printf( "%i", val );
@@ -113,7 +172,7 @@ DEFINE_CMD(dprint) {
 	double val;
 	TRY( stack_pop(eval_stack, (uint64_t*)&val) );
 
-	printf( "%d", val );
+	printf( "%lf", val );
 
 	return OK;
 }
