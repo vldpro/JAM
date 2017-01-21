@@ -26,6 +26,7 @@ int main( int argc, char** argv ) {
 	ctx_stack_push( 
 		vm-> ctx_stack, 
 		vmctx_new((vm_context_t) {
+			.local_data_stack = stack_new( DEFAULT_DATA_STACK_SIZE ),
 			.eval_stack = stack_new( DEFAULT_EVAL_STACK_SIZE ),
 			.instr_ptr = 0,
 			.cur_func = vm-> functions,
