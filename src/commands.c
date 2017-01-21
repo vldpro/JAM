@@ -113,6 +113,28 @@ DEFINE_CMD(d2i) {
 	return OK;
 }
 
+DEFINE_CMD(load) {
+	stack_t* const eval_stack = get_eval_stack( vm );
+	stack_t* const local_stack = vm-> ctx_stack-> cur_ctx-> local_data_stack;
+	uint64_t val;
+
+	TRY( stack_pop(eval_stack, &val ) );
+	TRY( stack_push(local_stack, val) );
+	
+	return OK;
+}
+
+DEFINE_CMD(store) {
+	stack_t* const eval_stack = get_eval_stack( vm );
+	stack_t* const local_stack = vm-> ctx_stack-> cur_ctx-> local_data_stack;
+	uint64_t val;
+
+	TRY( stack_pop(local_stack, &val ) );
+	TRY( stack_push(eval_stack, val) );
+	
+	return OK;
+}
+
 DEFINE_CMD(invoke) {
 	stack_t* const old_eval_stack = get_eval_stack( vm );
 	uint64_t func_id;
@@ -136,6 +158,7 @@ DEFINE_CMD(invoke) {
 	ctx_stack_push(
 		vm-> ctx_stack,
 		vmctx_new( (vm_context_t) {
+			.local_data_stack = stack_new( DEFAULT_DATA_STACK_SIZE ),
 			.eval_stack = new_eval_stack,
 			.instr_ptr = 0,
 			.cur_func = callee_func

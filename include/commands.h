@@ -41,15 +41,19 @@
 	DO(27, icmple) \
 	\
 	DO(28, dcmpeq) \
-	DO(28, dcmpne) \
-	DO(28, dcmpg) \
-	DO(28, dcmpge) \
-	DO(28, dcmpl) \
-	DO(28, dcmple) \
+	DO(29, dcmpne) \
+	DO(30, dcmpg) \
+	DO(31, dcmpge) \
+	DO(32, dcmpl) \
+	DO(33, dcmple) \
 	\
-	DO(28, i2d) \
-	DO(29, d2i) \
+	DO(34, neg) \
+	DO(35, i2d) \
+	DO(36, d2i) \
 	\
+	DO(37,load) \
+	DO(38,store)
+
 
 #define DEFINE_SIGNATURE( id, name )  \
 enum vm_err_code cmd_##name( vm_t* const vm );
