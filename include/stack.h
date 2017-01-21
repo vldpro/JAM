@@ -27,7 +27,7 @@ ERR_TYPE stack_pop( stack_t* const stack, uint64_t * const var );
 ERR_TYPE stack_peek( stack_t* const stack, uint64_t * const var );
 
 
-void stack_free_data( stack_t* const stack );
+void stack_free( stack_t* const stack );
 
 void stack_clear( stack_t* const stack );
 
