@@ -14,9 +14,11 @@ static inline void err_handler( enum vm_err_code err, vm_t const * const vm, FIL
 	if( err == OK ) return;
 	vm_context_t const * const cur_ctx = vm-> ctx_stack-> cur_ctx;
 
-	fprintf( errout, " func_name: %s", vm-> const_str_pool.str_at[ cur_ctx-> instr_ptr ] );  
-	fprintf( errout, " addr: %08u", cur_ctx-> instr_ptr );
-	fprintf( errout, " Error code: %i ", err );
+
+	puts("\n\n__ERROR__");
+	fprintf( errout, " +-- func_name: %s\n", vm-> const_str_pool.str_at[ cur_ctx-> cur_func-> name_id ] );  
+	fprintf( errout, " +-- addr: %08u\n", cur_ctx-> instr_ptr );
+	fprintf( errout, " +-- Error code: %i\n", err );
 
 	exit(err);
 }
