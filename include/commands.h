@@ -52,7 +52,12 @@
 	DO(36, d2i) \
 	\
 	DO(37,load) \
-	DO(38,store)
+	DO(38,store) \
+	\
+	DO(39, dinc) \
+	DO(40, ddec) \
+	DO(41, iinc) \
+	DO(42, idec) 
 
 
 #define DEFINE_SIGNATURE( id, name )  \

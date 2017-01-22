@@ -32,7 +32,7 @@ DEFINE_CMD(cmd_name) { \
 	TRY( stack_pop(eval_stack, (uint64_t*)&b) ); \
 	\
 	res_type result = a operation b; \
-	stack_push(eval_stack, *((uint64_t*)&(result)) ); \
+	TRY( stack_push(eval_stack, *((uint64_t*)&(result)) ) ); \
 	\
 	return OK; \
 } 
@@ -77,6 +77,29 @@ DEFINE_COMPARE_OP(dcmpl, <, double );
 
 DEFINE_COMPARE_OP(icmple, <=, int64_t ); 
 DEFINE_COMPARE_OP(dcmple, <=, double ); 
+
+#undef DEFINE_COMPARE_OP
+#undef DEFINE_MATH_OP
+#undef DEFINE_BINOP
+
+#define DEFINE_UNARY_OP( name, op, type ) \
+DEFINE_CMD(name) { \
+	stack_t* const eval_stack = get_eval_stack( vm ); \
+	type val; \
+	TRY( stack_pop(eval_stack, (uint64_t*)&val) ); \
+	(val)op; \
+	stack_push( eval_stack, *((uint64_t*)(&val)) ); \
+		\
+	return OK; \
+}
+
+DEFINE_UNARY_OP(dinc, ++, double)
+DEFINE_UNARY_OP(iinc, ++, int64_t)
+
+DEFINE_UNARY_OP(ddec, --, double)
+DEFINE_UNARY_OP(idec, --, int64_t)
+
+#undef DEFINE_UNARY_OP
 
 DEFINE_CMD(neg) {
 	stack_t* const eval_stack = get_eval_stack( vm );
