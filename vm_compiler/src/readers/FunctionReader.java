@@ -38,7 +38,7 @@ public class FunctionReader {
     public Function[] getReadedFunction() {
         Function[] asFunctionsArray = new Function[functions.size()];
         int i = 0;
-        for( Function meta : functions ) asFunctionsArray[i++] = meta;
+        for( Function function : functions ) asFunctionsArray[i++] = function;
 
         return asFunctionsArray;
     }
@@ -91,6 +91,9 @@ public class FunctionReader {
 
             } else  if( cmdMnemonic.equals("end") ) {
                 break;
+
+            } else if( ! MnemonicsList.isCorrectMnemonic(cmdMnemonic) ) {
+                throw new Exception();
 
             } else newFunction.pushBytecode( MnemonicsList.getBytecode(cmdMnemonic) );
 
