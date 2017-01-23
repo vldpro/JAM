@@ -51,4 +51,9 @@ public class MnemonicsList {
     public static String getMnemonic( byte bytecode ) {
         return mnemonics.get(bytecode);
     }
+
+    public static boolean isCorrectMnemonic( String mnemonic ) {
+        boolean res = getBytecode(mnemonic) >= 0;
+        return  res;
+    }
 }
