@@ -2,7 +2,7 @@ import common.Function;
 import common.StringPool;
 import readers.FunctionReader;
 import readers.StringPoolReader;
-import writer.BinaryFileOutput;
+import writer.ObjectFileWriter;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -78,19 +78,20 @@ public class Main {
     public static void writeFile(String filename, Function[] functions, StringPool stringPool) throws IOException {
         Path filePath = Paths.get(filename);
 
-        try(DataOutputStream out = new DataOutputStream(Files.newOutputStream(filePath, CREATE, WRITE)) ) {
-            BinaryFileOutput binaryFileOutput = new BinaryFileOutput(out);
+        try(ObjectFileWriter objectFileWriter = new ObjectFileWriter(Files.newOutputStream(filePath, CREATE, WRITE)) ) {
 
-            binaryFileOutput.writeFileHeader(
+            objectFileWriter.writeFileHeader(
                    0xDEAD_DEAD_DEAD_DEADL, 1, stringPool.sizeInBytes(), functions.length
             );
 
             for( String str: stringPool.getContainer() )
-                binaryFileOutput.writeASCIIString(str);
+                objectFileWriter.writeASCIIString(str);
 
             for( Function function : functions )
-                binaryFileOutput.writeFunctionMeta(function);
+                objectFileWriter.writeFunction(function);
 
+        } catch ( Exception e ) {
+            e.printStackTrace();
         }
     }
 }

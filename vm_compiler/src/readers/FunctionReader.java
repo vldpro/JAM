@@ -81,15 +81,15 @@ public class FunctionReader {
                 } else labels.put( cmdMnemonic.substring(0, cmdMnemonic.length() - 1), currentPos );
 
             } else if( cmdMnemonic.equals("push") ) {
-                long pushConstantPtr = newFunction.pushBytecode(MnemonicsList.getBytecode(cmdMnemonic));
+                long ptrToPush = newFunction.pushBytecode( MnemonicsList.getBytecode(cmdMnemonic) );
 
-                if (scanner.hasNextLong()) {
+                if ( scanner.hasNextLong() ) {
                     newFunction.pushConstant(scanner.nextLong());
 
-                } else if(scanner.hasNextDouble()) {
-                    newFunction.pushConstant(scanner.nextDouble());
+                } else if( scanner.hasNextDouble() ) {
+                    newFunction.pushConstant( scanner.nextDouble() );
 
-                } else if(scanner.hasNext("0x[0-9A-Fa-f]+")) {
+                } else if( scanner.hasNext("0x[0-9A-Fa-f]+") ) {
                     long val = new BigInteger(scanner.next().substring(2), 16).longValue();
                     newFunction.pushConstant(val);
 
@@ -99,12 +99,12 @@ public class FunctionReader {
 
                 } else if( scanner.hasNext() ) {
                     String label = scanner.next();
-                    Integer cmdPtr = labels.get(label);
+                    Integer isResolvedLabel = labels.get(label);
 
-                    if( cmdPtr != null  ) newFunction.pushConstant( labels.get(scanner.next()) );
+                    if( isResolvedLabel != null ) newFunction.pushConstant( labels.get(scanner.next()) );
                     else {
                         newFunction.pushConstant( 0 );
-                        unresolvedLabels.put(label, (int)pushConstantPtr);
+                        unresolvedLabels.put(label, (int)ptrToPush);
                     }
 
                 } else throw new Exception("after \"push\" command no argumets.");
