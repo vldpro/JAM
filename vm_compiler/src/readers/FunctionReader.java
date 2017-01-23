@@ -67,20 +67,18 @@ public class FunctionReader {
     private void readCommands(Function newFunction, Scanner scanner) throws Exception {
         int currentPos = 0;
         HashMap<String, Integer> labels = new HashMap<>();
-        HashMap<String, Integer> unresolvingLabels = new HashMap<>();
+        HashMap<String, Integer> unresolvedLabels = new HashMap<>();
 
         while( scanner.hasNext() ) {
             String cmdMnemonic = scanner.next();
 
             if( cmdMnemonic.matches("[^:]*:")) {
-                if( unresolvingLabels.get(cmdMnemonic.substring(0, cmdMnemonic.length() - 1)) != null ) {
-                    newFunction.insertConstant(
-                            currentPos,
-                            unresolvingLabels.get(cmdMnemonic.substring(0, cmdMnemonic.length() - 1))
-                    );
-                }
+                String label = cmdMnemonic.substring(0, cmdMnemonic.length() - 1 );
 
-                labels.put( cmdMnemonic.substring(0, cmdMnemonic.length() - 1), currentPos );
+                if( unresolvedLabels.get(label) != null ) {
+                    newFunction.setConstant( currentPos, unresolvedLabels.get(label) );
+
+                } else labels.put( cmdMnemonic.substring(0, cmdMnemonic.length() - 1), currentPos );
 
             } else if( cmdMnemonic.equals("push") ) {
                 long pushConstantPtr = newFunction.pushBytecode(MnemonicsList.getBytecode(cmdMnemonic));
@@ -106,7 +104,7 @@ public class FunctionReader {
                     if( cmdPtr != null  ) newFunction.pushConstant( labels.get(scanner.next()) );
                     else {
                         newFunction.pushConstant( 0 );
-                        unresolvingLabels.put(label, (int)pushConstantPtr);
+                        unresolvedLabels.put(label, (int)pushConstantPtr);
                     }
 
                 } else throw new Exception("after \"push\" command no argumets.");

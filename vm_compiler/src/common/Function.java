@@ -81,10 +81,10 @@ public class Function {
         return commandsCount;
     }
 
-    public void insertConstant( long constant, long offset ) {
+    public void setConstant(long constant, int offset ) {
         byte[] constantByBytes = Endianness.getLongAsByteArray(constant);
 
-        int i = (int)offset;
+        int i = offset;
         for( byte bt : constantByBytes ) bytecodes.set(i++, bt);
 
     }

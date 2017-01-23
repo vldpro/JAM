@@ -34,19 +34,19 @@ public class Main {
         FunctionReader functionReader = new FunctionReader();
 
         try (Scanner scanner = new Scanner(source)) {
-            while(scanner.hasNext()) {
+            while( scanner.hasNext() ) {
                 if (scanner.hasNext("[ ]*def[ ]*")) {
-                    scanner.skip("def");
+                    scanner.skip("[ ]*def[ ]*");
 
                     if( scanner.hasNext("constants")) {
                         scanner.skip("[ ]*constants[ ]*");
 
                         poolReader.readStringPool(scanner);
-                    } else if( scanner.hasNext("function")) {
+                    } else if( scanner.hasNext("[ ]*function[ ]*")) {
                         scanner.skip("[ ]*function[ ]*");
 
-                        functionReader.readFunction(poolReader.getStringPool(), scanner);
-                    }
+                        functionReader.readFunction( poolReader.getStringPool(), scanner );
+                    } else throw new Exception();
 
                     scanner.skip("[ \t\n]*");
                 }
