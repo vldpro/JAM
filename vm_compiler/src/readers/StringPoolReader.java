@@ -23,7 +23,7 @@ public class StringPoolReader {
      * Used captured quatification
      * Each string must be wrote om a mew line
      */
-    
+
     public void readStringPool(Scanner scanner) throws Exception {
 
         while( scanner.hasNext("\"(?>.*\")")) {
