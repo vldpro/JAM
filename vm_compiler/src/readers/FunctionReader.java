@@ -67,23 +67,31 @@ public class FunctionReader {
     private void readCommands(Function newFunction, Scanner scanner) throws Exception {
         int currentPos = 0;
         HashMap<String, Integer> labels = new HashMap<>();
+        HashMap<String, Integer> unresolvingLabels = new HashMap<>();
 
         while( scanner.hasNext() ) {
             String cmdMnemonic = scanner.next();
 
             if( cmdMnemonic.matches("[^:]*:")) {
+                if( unresolvingLabels.get(cmdMnemonic.substring(0, cmdMnemonic.length() - 1)) != null ) {
+                    newFunction.insertConstant(
+                            currentPos,
+                            unresolvingLabels.get(cmdMnemonic.substring(0, cmdMnemonic.length() - 1))
+                    );
+                }
+
                 labels.put( cmdMnemonic.substring(0, cmdMnemonic.length() - 1), currentPos );
 
             } else if( cmdMnemonic.equals("push") ) {
-                newFunction.pushBytecode(MnemonicsList.getBytecode(cmdMnemonic));
+                long pushConstantPtr = newFunction.pushBytecode(MnemonicsList.getBytecode(cmdMnemonic));
 
                 if (scanner.hasNextLong()) {
                     newFunction.pushConstant(scanner.nextLong());
 
-                } else if (scanner.hasNextDouble()) {
+                } else if(scanner.hasNextDouble()) {
                     newFunction.pushConstant(scanner.nextDouble());
 
-                } else if (scanner.hasNext("0x[0-9A-Fa-f]+")) {
+                } else if(scanner.hasNext("0x[0-9A-Fa-f]+")) {
                     long val = new BigInteger(scanner.next().substring(2), 16).longValue();
                     newFunction.pushConstant(val);
 
@@ -91,8 +99,15 @@ public class FunctionReader {
                     byte as_ascii = (byte)scanner.next().charAt(1);;
                     newFunction.pushConstant(as_ascii);
 
-                }else if( scanner.hasNext() ) {
-                    newFunction.pushConstant( labels.get(scanner.next()) );
+                } else if( scanner.hasNext() ) {
+                    String label = scanner.next();
+                    Integer cmdPtr = labels.get(label);
+
+                    if( cmdPtr != null  ) newFunction.pushConstant( labels.get(scanner.next()) );
+                    else {
+                        newFunction.pushConstant( 0 );
+                        unresolvingLabels.put(label, (int)pushConstantPtr);
+                    }
 
                 } else throw new Exception("after \"push\" command no argumets.");
 

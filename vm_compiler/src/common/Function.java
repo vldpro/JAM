@@ -74,9 +74,19 @@ public class Function {
         return asByteArray;
     }
 
-    public void pushBytecode( byte bytecode ) {
+    public long pushBytecode( byte bytecode ) {
         bytecodes.add( bytecode );
         commandsCount++;
+
+        return commandsCount;
+    }
+
+    public void insertConstant( long constant, long offset ) {
+        byte[] constantByBytes = Endianness.getLongAsByteArray(constant);
+
+        int i = (int)offset;
+        for( byte bt : constantByBytes ) bytecodes.set(i++, bt);
+
     }
 
     public void pushConstant( long constant ) {
