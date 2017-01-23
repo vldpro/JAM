@@ -38,8 +38,8 @@ public class Main {
                 if (scanner.hasNext("[ ]*def[ ]*")) {
                     scanner.skip("def");
 
-                    if( scanner.hasNext("constpool")) {
-                        scanner.skip("[ ]*constpool[ ]*");
+                    if( scanner.hasNext("constants")) {
+                        scanner.skip("[ ]*constants[ ]*");
 
                         poolReader.readStringPool(scanner);
                     } else if( scanner.hasNext("function")) {
