@@ -42,6 +42,12 @@ public class MnemonicsList {
         mnemonics.add("dinc"); mnemonics.add("ddec");
         mnemonics.add("iinc"); mnemonics.add("idec");
 
+        mnemonics.add("clrloc"); mnemonics.add("clreval");
+        mnemonics.add("pop");
+
+        mnemonics.add("loadcp"); mnemonics.add("storecp");
+        mnemonics.add("cprint");
+
     }
 
     public static byte getBytecode( String mnemonic ) {
