@@ -4,6 +4,7 @@ import common.MnemonicsList;
 import common.Function;
 import common.StringPool;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -54,20 +55,20 @@ public class FunctionReader {
 
         scanner.skip("[ \t\n]*");
 
-        if( scanner.hasNext("args") ) {
-            scanner.skip("[ ]*args[ ]*");
+        if( scanner.hasNext("argc") ) {
+            scanner.skip("[ ]*argc[ ]*");
 
             if( scanner.hasNextLong() )
                 newFunction.setArgsCount(scanner.nextLong());
 
-        } else throw new Exception(" \"args\" keyword not found. ");
+        } else throw new Exception(" \"argc\" keyword not found. ");
     }
 
     private void readCommands(Function newFunction, Scanner scanner) throws Exception {
         int currentPos = 0;
         HashMap<String, Integer> labels = new HashMap<>();
 
-        while(scanner.hasNext()) {
+        while( scanner.hasNext() ) {
             String cmdMnemonic = scanner.next();
 
             if( cmdMnemonic.matches("[^:]*:")) {
@@ -76,13 +77,21 @@ public class FunctionReader {
             } else if( cmdMnemonic.equals("push") ) {
                 newFunction.pushBytecode(MnemonicsList.getBytecode(cmdMnemonic));
 
-                if( scanner.hasNextLong() ) {
+                if (scanner.hasNextLong()) {
                     newFunction.pushConstant(scanner.nextLong());
 
-                } else if( scanner.hasNextDouble() ) {
+                } else if (scanner.hasNextDouble()) {
                     newFunction.pushConstant(scanner.nextDouble());
 
-                } else if( scanner.hasNext() ) {
+                } else if (scanner.hasNext("0x[0-9A-Fa-f]+")) {
+                    long val = new BigInteger(scanner.next().substring(2), 16).longValue();
+                    newFunction.pushConstant(val);
+
+                } else if( scanner.hasNext("'[^\"]'") ) {
+                    byte as_ascii = (byte)scanner.next().charAt(1);;
+                    newFunction.pushConstant(as_ascii);
+
+                }else if( scanner.hasNext() ) {
                     newFunction.pushConstant( labels.get(scanner.next()) );
 
                 } else throw new Exception("after \"push\" command no argumets.");
@@ -100,6 +109,4 @@ public class FunctionReader {
             currentPos++;
         }
     }
-
-
 }
