@@ -2,6 +2,7 @@
 #include "commands.h"
 #include "vm_context.h"
 #include "vm_errors.h"
+#include "stack.h"
 
 typedef enum vm_err_code (*cmd_t) (vm_t*);
 
@@ -17,8 +18,17 @@ static inline void err_handler( enum vm_err_code err, vm_t const * const vm, FIL
 
 	puts("\n\n__ERROR__");
 	fprintf( errout, " +-- func_name: %s\n", vm-> const_str_pool.str_at[ cur_ctx-> cur_func-> name_id ] );  
-	fprintf( errout, " +-- addr: %08u\n", cur_ctx-> instr_ptr );
-	fprintf( errout, " +-- Error code: %i\n", err );
+	fprintf( errout, " +-- addr: %08u\n", cur_ctx-> instr_ptr - 1 );
+	fprintf( errout, " +-- Error code: %s\n", get_vm_err_msg(err) );
+
+	#ifdef DEBUG
+	puts( "\n EVAL STACK TRACE " );
+	stack_print_trace( cur_ctx-> eval_stack );
+
+	puts("\n DATA STACK TRACE " );
+	stack_print_trace( cur_ctx-> local_data_stack );
+	#endif
+		
 
 	exit(err);
 }
