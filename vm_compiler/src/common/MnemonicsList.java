@@ -37,7 +37,7 @@ public class MnemonicsList {
 
         mnemonics.add("neg");
         mnemonics.add("i2d"); mnemonics.add("d2i");
-        mnemonics.add("load"); mnemonics.add("strore");
+        mnemonics.add("load"); mnemonics.add("store");
 
         mnemonics.add("dinc"); mnemonics.add("ddec");
         mnemonics.add("iinc"); mnemonics.add("idec");
