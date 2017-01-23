@@ -1,0 +1,40 @@
+def constants
+	"main"
+	"fib"
+
+def function main argc 0
+	push 2
+	push 1
+	invoke
+	iprint
+	halt
+end
+
+def function fib argc 1
+	push 2
+	icmpg
+	push return
+	branchif
+
+	pop
+	idec
+	storecp
+	push 1
+	invoke 
+
+	load
+	swap
+	store
+
+	idec
+	push 1
+	invoke
+
+	load
+	iadd
+	ret	
+
+	return:
+	push 1
+	ret
+end

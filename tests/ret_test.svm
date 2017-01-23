@@ -1,0 +1,17 @@
+def constants
+	"main"
+	"sum"
+
+def function main argc 0
+	push 197
+	push 16
+	push 1
+	invoke
+	iprint
+	halt
+end
+
+def function sum argc 2
+	iadd
+	ret
+end

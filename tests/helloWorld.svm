@@ -1,0 +1,16 @@
+def constants
+	"main"
+	"helloWorld"
+
+def function main argc 0
+	push 1
+	push 1
+	invoke 
+	halt
+end
+
+def function helloWorld argc 1
+	sprint
+	retvoid
+end
+
