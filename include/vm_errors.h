@@ -1,15 +1,12 @@
-#ifndef VM_ERRORS_H
-#define VM_ERRORS_H
+#pragma once
 
 enum vm_err_code {
-	OK,
-	CALL_STACK_OF,
+	OK = 0,
 	STACK_OF,
 	STACK_IS_EMPTY,
 	INVALID_CMD_PTR,
 	NO_SUCH_FUNCTION
 };
 
-//char* get_vm_err_msg( enum vm_err_code err ); 
+char* get_vm_err_msg( enum vm_err_code err );
 
-#endif
