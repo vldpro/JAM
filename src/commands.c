@@ -20,16 +20,13 @@ static inline stack_t* get_eval_stack( vm_t const * const vm ) {
 	return vm-> ctx_stack-> cur_ctx-> eval_stack;
 }
 
-#define UNIPLEMENTED( cmd_name ) \
-DEFINE_CMD(cmd_name) { return OK; }
-
 #define DEFINE_BINOP( cmd_name, operation, type, res_type ) \
 DEFINE_CMD(cmd_name) { \
 	type a, b; \
 	\
 	stack_t* const eval_stack = get_eval_stack( vm ); \
-	TRY( stack_pop(eval_stack, (uint64_t*)&a) ); \
 	TRY( stack_pop(eval_stack, (uint64_t*)&b) ); \
+	TRY( stack_pop(eval_stack, (uint64_t*)&a) ); \
 	\
 	res_type result = a operation b; \
 	TRY( stack_push(eval_stack, *((uint64_t*)&(result)) ) ); \
@@ -38,10 +35,23 @@ DEFINE_CMD(cmd_name) { \
 } 
 
 #define DEFINE_COMPARE_OP( name, op, type ) \
-	DEFINE_BINOP(name, op, type, uint64_t)
+DEFINE_CMD(name) { \
+	type a, b; \
+	\
+	stack_t* const eval_stack = get_eval_stack( vm ); \
+	TRY( stack_pop(eval_stack, (uint64_t*)&b) ); \
+	TRY( stack_peek(eval_stack, (uint64_t*)&a) ); \
+	stack_push( eval_stack, *((uint64_t*)&b) ); \
+	\
+	uint64_t cmp_result = a op b; \
+	TRY( stack_push(eval_stack, *((uint64_t*)&(cmp_result))) ); \
+	\
+	return OK;\
+}
 
 #define DEFINE_MATH_OP( name, op, type ) \
 	DEFINE_BINOP(name, op, type, type)
+
 
 DEFINE_MATH_OP(iadd, +, int64_t)
 DEFINE_MATH_OP(dadd, +, double)
@@ -136,27 +146,25 @@ DEFINE_CMD(d2i) {
 	return OK;
 }
 
-DEFINE_CMD(load) {
-	stack_t* const eval_stack = get_eval_stack( vm );
-	stack_t* const local_stack = vm-> ctx_stack-> cur_ctx-> local_data_stack;
-	uint64_t val;
-
-	TRY( stack_pop(eval_stack, &val ) );
-	TRY( stack_push(local_stack, val) );
-	
-	return OK;
+#define DEFINE_LOAD_OP( name, src, dest, op ) \
+DEFINE_CMD(name) { \
+	stack_t* const eval_stack = get_eval_stack( vm ); \
+	stack_t* const local_stack = vm-> ctx_stack-> cur_ctx-> local_data_stack; \
+	uint64_t val; \
+	\
+	TRY( stack_##op(src, &val ) ); \
+	TRY( stack_push(dest, val) ); \
+	\
+	return OK; \
 }
 
-DEFINE_CMD(store) {
-	stack_t* const eval_stack = get_eval_stack( vm );
-	stack_t* const local_stack = vm-> ctx_stack-> cur_ctx-> local_data_stack;
-	uint64_t val;
+DEFINE_LOAD_OP(load, local_stack, eval_stack, pop );
+DEFINE_LOAD_OP(loadcp, local_stack, eval_stack, peek );
 
-	TRY( stack_pop(local_stack, &val ) );
-	TRY( stack_push(eval_stack, val) );
-	
-	return OK;
-}
+DEFINE_LOAD_OP(store, eval_stack, local_stack, pop );
+DEFINE_LOAD_OP(storecp, eval_stack, local_stack, peek );
+
+#undef DEFINE_LOAD_OP
 
 DEFINE_CMD(invoke) {
 	stack_t* const old_eval_stack = get_eval_stack( vm );
@@ -211,6 +219,8 @@ DEFINE_CMD(iprint) {
 	TRY( stack_pop(eval_stack, (uint64_t*)&val) );
 
 	printf( "%i", val );
+
+	return OK;	
 }
 
 DEFINE_CMD(dprint) {
@@ -234,9 +244,32 @@ DEFINE_CMD(sprint) {
 	return OK;
 }
 
-DEFINE_CMD(clear) {
+DEFINE_CMD(cprint) {
 	stack_t* const eval_stack = get_eval_stack( vm );
-	stack_clear( eval_stack );
+	uint64_t ascii_code;
+	TRY( stack_pop(eval_stack, &ascii_code) );
+
+	printf("%c", (char)ascii_code);
+
+	return OK;
+}
+
+#define DEFINE_CLEAR_OP( name, stack_name ) \
+DEFINE_CMD(name) { \
+	stack_t* const stack = vm-> ctx_stack-> cur_ctx-> stack_name; \
+	stack_clear( stack ); \
+	\
+	return OK; \
+}
+
+DEFINE_CLEAR_OP( clrloc, local_data_stack );
+DEFINE_CLEAR_OP( clreval, eval_stack );
+
+#undef DEFINE_CLEAR_OP
+
+DEFINE_CMD(pop) {
+	stack_t* const eval_stack = get_eval_stack( vm );
+	TRY( stack_delete_top( eval_stack ) );
 
 	return OK;
 }
@@ -290,12 +323,15 @@ DEFINE_CMD(branch) {
 DEFINE_CMD(halt) { exit(0); }
 
 DEFINE_CMD(branchif) {
-	cmd_swap( vm );
+	TRY( cmd_swap( vm ) );
 
 	uint64_t compare_res;
-	stack_pop( get_eval_stack(vm), &compare_res );
+	stack_t* eval_stack = get_eval_stack( vm );
+	stack_pop( eval_stack, &compare_res );
 
 	if( compare_res ) cmd_branch( vm );
+	stack_delete_top( eval_stack );
+
 	return OK;
 }
 

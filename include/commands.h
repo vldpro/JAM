@@ -51,13 +51,19 @@
 	DO(35, i2d) \
 	DO(36, d2i) \
 	\
-	DO(37,load) \
-	DO(38,store) \
+	DO(37, load) \
+	DO(38, store) \
 	\
 	DO(39, dinc) \
 	DO(40, ddec) \
 	DO(41, iinc) \
-	DO(42, idec) 
+	DO(42, idec) \
+	DO(43, clrloc) \
+	DO(44, clreval) \
+	DO(45, pop) \
+	DO(46, loadcp ) \
+	DO(47, storecp ) \
+	DO(48, cprint) 
 
 
 #define DEFINE_SIGNATURE( id, name )  \
