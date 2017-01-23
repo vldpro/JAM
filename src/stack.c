@@ -1,6 +1,7 @@
 #include "stack.h"
+#include <stdio.h>
 
-/* 64-bit stack for eval and global stacks */
+/* 64-bit stack for eval and local stacks */
 
 #define ERR_TYPE enum vm_err_code
 
@@ -41,9 +42,23 @@ ERR_TYPE stack_pop( stack_t* const stack, uint64_t * const var ) {
 	return OK;
 }
 
-void stack_free_data( stack_t* const stack ) { free( stack-> data ); }
+ERR_TYPE stack_delete_top( stack_t* const stack ) {
+	if( stack_is_empty( stack ) ) return STACK_IS_EMPTY; 
+	stack-> sp--;
+
+	return OK;
+}
+
+void stack_free( stack_t* const stack ) { free( stack-> data ); free(stack); }
 
 void stack_clear( stack_t* const stack ) { stack-> sp = 0; }
+
+void stack_print_trace( stack_t const * const stack ) {
+	puts("addr :   hex   : decimal ");
+	for( size_t i = 0; i < stack-> sp; i++ ) {
+		printf("%04u : 0x%08x : %i\n", i, stack-> data[i], stack-> data[i] );
+	}
+}
 
 
 #ifdef STACK_TEST

@@ -8,6 +8,7 @@
 #define ERR_TYPE enum vm_err_code
 
 #define DEFAULT_EVAL_STACK_SIZE 25 
+#define DEFAULT_DATA_STACK_SIZE 40 
 
 typedef struct stack {
 	size_t size, sp;
@@ -20,15 +21,20 @@ int stack_is_full( stack_t const * const stack );
 
 int stack_is_empty( stack_t const * const stack );
 
+
 ERR_TYPE stack_push( stack_t* const stack, uint64_t const value );
 
 ERR_TYPE stack_pop( stack_t* const stack, uint64_t * const var );
 
 ERR_TYPE stack_peek( stack_t* const stack, uint64_t * const var );
 
+ERR_TYPE stack_delete_top( stack_t* const stack );
+
 
 void stack_free( stack_t* const stack );
 
 void stack_clear( stack_t* const stack );
+
+void stack_print_trace( stack_t const * const stack );
 
 #endif
