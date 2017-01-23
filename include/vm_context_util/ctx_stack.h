@@ -18,6 +18,6 @@ void ctx_stack_push( ctx_stack_t* const cstack, vm_context_t * const ctx );
 
 vm_context_t* ctx_stack_pop( ctx_stack_t* const cstack );
 
-void ctx_stack_print_trace( ctx_stack_t const * const cstack );
+void ctx_stack_print_trace( ctx_stack_t const * const cstack, char** const name_at );
 
 #endif

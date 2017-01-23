@@ -1,5 +1,6 @@
 #include "ctx_stack.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 ctx_stack_t* 
 ctx_stack_new(void) {
@@ -30,7 +31,15 @@ vm_context_t* ctx_stack_pop( ctx_stack_t* const cstack ) {
 	return ctx;
 }
 
-void ctx_stack_print_trace( ctx_stack_t const * const cstack ) {}
+void ctx_stack_print_trace( ctx_stack_t const * const cstack, char** const name_at ) {
+	vm_context_t* cur_ctx = cstack-> cur_ctx;
+	if( cur_ctx == NULL ) return;
+	size_t i = cstack-> size;
+
+	do {
+		printf("%08u: name: %s\n", i--, name_at[ cur_ctx-> cur_func-> name_id ]);
+	} while( cur_ctx = cur_ctx-> prev_ctx );
+}
 
 
 #ifdef TEST_CTX_STACK
