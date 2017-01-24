@@ -26,6 +26,8 @@ void vm_init_str_const_pool( struct str_pool* const pool, size_t const size );
 
 void vm_free_str_const_pool( struct str_pool* pool );
 
-void vm_free_functions( vm_t* vm );
+void vm_init_functions( vm_t* const vm );
+
+void vm_free_functions( vm_t* const vm );
 
 #endif
