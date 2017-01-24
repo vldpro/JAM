@@ -37,8 +37,13 @@ void ctx_stack_print_trace( ctx_stack_t const * const cstack, char** const name_
 	size_t i = cstack-> size;
 
 	do {
-		printf("%04u: name: %s stopped at %08x\n", i--, name_at[ cur_ctx-> cur_func-> name_id ], cur_ctx-> instr_ptr);
-	} while( cur_ctx = cur_ctx-> prev_ctx );
+		printf(
+			"%04u: name: %s stopped at %08u\n", 
+			(unsigned int)i--, name_at[ cur_ctx-> cur_func-> name_id ], 
+			(unsigned int)(cur_ctx-> instr_ptr - 1) 
+		);
+
+	} while( (cur_ctx = cur_ctx-> prev_ctx) );
 }
 
 

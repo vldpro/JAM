@@ -35,20 +35,20 @@ static char* bc_mnemonics[256] = {
 
 void print_function( function_t const * const func ) {
 	puts("\n\n__function_metadata__");	
-	printf( "+-- Name id: %x \n", func-> name_id );
-	printf( "+-- Args count: %u \n", func-> args_count );
-	printf( "+-- Cmds count: %u \n", func-> cmds_count );
+	printf( "+-- Name id: %lx \n", func-> name_id );
+	printf( "+-- Args count: %lu \n", func-> args_count );
+	printf( "+-- Cmds count: %lu \n", func-> cmds_count );
 
 	puts("__bytecode_start__");
 	puts(" addr | bytecode | mnemonic ");
 
 	for( size_t i = 0; i < func-> cmds_count; i++ ) {
-		printf(" %04i : %08i", i, func-> cmds[i] );
-		printf(" : %s", bc_mnemonics[ func-> cmds[i] ] );
-		if( func-> cmds[i] == 0x01) {
+		printf(" %04lu : %08u", i, func-> cmds[i] );
+		printf(" : %s", bc_mnemonics[ (size_t)func-> cmds[i] ] );
+		if( func-> cmds[i] == 0x01 ) {
 			i++;
-			printf(" 0x%08x", *((uint64_t*)(func-> cmds + i)) );
-			printf(" %u \n", *((uint64_t*)(func-> cmds + i)) );
+			printf(" 0x%08lx", *((uint64_t*)(func-> cmds + i)) );
+			printf(" %lu \n", *((uint64_t*)(func-> cmds + i)) );
 			i+=7;
 		} else puts("");
 	}
@@ -57,10 +57,10 @@ void print_function( function_t const * const func ) {
 }
 
 void print_file_header( struct file_header header ) {
-	printf("Tag: %u \n", header.tag );
-	printf("Version: %u \n", header.version );
-	printf("Pool size: %u \n", header.str_pool_size );
-	printf("Funcs count: %u \n", header.functions_count);
+	printf("Tag: %lu \n", header.tag );
+	printf("Version: %lu \n", header.version );
+	printf("Pool size: %lu \n", header.str_pool_size );
+	printf("Funcs count: %lu \n", header.functions_count);
 }
 
 void print_str_pool( char** pool, size_t const count ) {
@@ -83,7 +83,7 @@ load_str_const_pool( struct str_pool* pool, FILE* src ) {
 	split_by_lines( pool );
 
 	#ifdef DEBUG 
-	printf( "%u \n", pool-> str_count );
+	printf( "%lu \n", pool-> str_count );
 	print_str_pool( pool-> str_at, pool-> str_count );
 	#endif
 
@@ -135,10 +135,10 @@ load_src_file( vm_t* vm, FILE* src ) {
 		ERR_IN_READING_HEADER
 	);
 
-
 	#ifdef DEBUG
 	print_file_header( header );
 	#endif
+
 
 	TRY_EXEC( is_header_correct(header) );
 

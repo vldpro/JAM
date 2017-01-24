@@ -21,7 +21,7 @@ int main( int argc, char** argv ) {
 
 	FILE* src_file = fopen( argv[1], "rb" );
 	int err;
-	if( err = load_src_file( vm, src_file ) ) return err;
+	if( (err = load_src_file( vm, src_file )) ) return err;
 
 	ctx_stack_push( 
 		vm-> ctx_stack, 

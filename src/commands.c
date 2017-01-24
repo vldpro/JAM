@@ -116,7 +116,7 @@ DEFINE_CMD(neg) {
 	uint64_t val;
 	TRY( stack_pop(eval_stack, &val) );
 
-	val = !val;
+	val = -val;
 	stack_push(eval_stack, val);
 	
 	return OK;
@@ -218,7 +218,7 @@ DEFINE_CMD(iprint) {
 
 	TRY( stack_pop(eval_stack, (uint64_t*)&val) );
 
-	printf( "%i", val );
+	printf( "%li", (long)val );
 
 	return OK;	
 }

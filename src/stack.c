@@ -56,7 +56,7 @@ void stack_clear( stack_t* const stack ) { stack-> sp = 0; }
 void stack_print_trace( stack_t const * const stack ) {
 	puts("addr :   hex   : decimal ");
 	for( size_t i = 0; i < stack-> sp; i++ ) {
-		printf("%04u : 0x%08x : %i\n", i, stack-> data[i], stack-> data[i] );
+		printf("%04lu : 0x%08lx : %li\n", i, stack-> data[i], (long int)stack-> data[i] );
 	}
 }
 
