@@ -9,6 +9,9 @@
 #define TRY_READ( action, err ) \
 do { if( !(action) ) return err; } while(0)
 
+#define TRY_READ_WITH_FINALLY( action, finally, err ) \
+do { if( !(action) ) { (finally); return err; } } while(0)
+
 #define TRY_EXEC( action ) \
 do { size_t err = (action); if( err ) return err; } while(0)
 
@@ -93,17 +96,20 @@ load_str_const_pool( struct str_pool* pool, FILE* src ) {
 
 
 static load_err_code_t
-load_function( function_t* new_func, FILE* src ) {
+load_function( function_t* const new_func, FILE* src ) {
 	TRY_READ( 
 		fread( new_func, sizeof(uint64_t), 3, src ),
 		ERR_IN_READING_FUNCTION_META
 		);
 	
-	TRY_READ( fread( 
-		new_func-> cmds = malloc( sizeof(char) * new_func-> cmds_count ),  
-		sizeof(char), 
-		new_func-> cmds_count, 
-		src ),
+	TRY_READ_WITH_FINALLY( 
+		fread( 
+			new_func-> cmds = malloc( sizeof(char) * new_func-> cmds_count ),  
+			sizeof(char), 
+			new_func-> cmds_count, 
+			src 
+		),
+		free( new_func-> cmds ),
 		ERR_IN_READING_FUNCTION
 		);
 
@@ -115,7 +121,7 @@ load_function( function_t* new_func, FILE* src ) {
 }
 
 static load_err_code_t
-load_functions( function_t* functions, uint64_t const funcs_count, FILE* src ) { 
+load_functions( function_t* const functions, uint64_t const funcs_count, FILE* src ) { 
 	for( size_t i = 0; i < funcs_count; i++ ) 
 		TRY_EXEC( load_function(functions + i, src) );	
 
@@ -149,14 +155,14 @@ load_src_file( vm_t* vm, FILE* src ) {
 		vm_free_str_const_pool( &(vm-> const_str_pool) )
 		);
 
-	vm-> functions = malloc( sizeof(function_t) * header.functions_count );
 	vm-> funcs_count = header.functions_count;
+	vm_init_functions( vm );
 
 	TRY_WITH_FINALLY( 
 		load_functions( vm-> functions, vm-> funcs_count, src ),
 		{ 
 		vm_free_str_const_pool( &(vm-> const_str_pool) ); 
-		vm_free_functions( vm ); 
+		free( vm-> functions ); 
 		}
 		);
 
