@@ -94,8 +94,8 @@ public class FunctionReader {
                     newFunction.pushConstant(val);
 
                 } else if( scanner.hasNext("'[^\"]'") ) {
-                    byte as_ascii = (byte)scanner.next().charAt(1);;
-                    newFunction.pushConstant(as_ascii);
+                    byte asAscii = (byte)scanner.next().charAt(1);;
+                    newFunction.pushConstant(asAscii);
 
                 } else if( scanner.hasNext() ) {
                     String label = scanner.next();
