@@ -1,4 +1,4 @@
-# sys_lang_project
+# JAM (Just a machine) stack virtual machine
 
 Структура виртуальной машины:
 
